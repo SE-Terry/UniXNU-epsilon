@@ -1,0 +1,13 @@
+# iPhoneDuo T5, host builds 2026-11-16 UTC, iphoneduo-t1-builder:1, volume iphoneduo_t3h_work (incremental). Device not contacted. Nothing booted.
+# supervised diagnostic build (UNIXNU_BOOT_OPTION=1 PACKAGE_NOSB=1): the files in this directory
+f2d95f5c40c882680139737ef349b1b2f0b27bd6a683b56bea26524666de9000  SM8150_EFI.fd
+15a96acfddccf471ee244f9433ff01179ccb567c7c8b57b2a35157ce2b89319b  EpsilonDiag.efi
+9c5cde05b551a98587522609818e02b2b135907418a4577957e5fa4fd81d6705  UefiPlatEpsilonNoSb.bin
+# same inputs, second run (not bit-identical FD; .bin not kept)
+278fc86e5b9112232eb1f7d454f68503b3e98ae207ee18abb14691fe7131fbf5  repro/SM8150_EFI.fd
+15a96acfddccf471ee244f9433ff01179ccb567c7c8b57b2a35157ce2b89319b  repro/EpsilonDiag.efi
+95ebb58e3ea218719e792f8a0cb592ed28247cce7f731b5d4119f5168498d3c8  repro/UefiPlatEpsilonNoSb.bin
+# default safe build (UNIXNU_BOOT_OPTION=0 PACKAGE_NOSB=1); FD not kept, FV reports in safe-build/
+80b3bfa33c7d5796ef85ded8349f1c9809fe6dc18fef70576b1fd59a324062ca  safe-build/SM8150_EFI.fd
+15a96acfddccf471ee244f9433ff01179ccb567c7c8b57b2a35157ce2b89319b  safe-build/EpsilonDiag.efi
+78c06385957edb93bed2211b83e672ca603cbda6dfad93195e45f9353c415541  safe-build/UefiPlatEpsilonNoSb.bin

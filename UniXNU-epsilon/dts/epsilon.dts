@@ -1,0 +1,101 @@
+// SPDX-License-Identifier: BSD-2-Clause-Patent
+// Microsoft Surface Duo 1 (epsilon), SM8150 -- Project iPhoneDuo scaffold.
+//
+// Inspection fixture only. Not an Android/ABL DTB and not a finished XNU description.
+// No loader-owned RAM is granted here; DT-described RAM is not free RAM.
+// Device: NOT contacted. No value in this file has been measured on epsilon.
+//
+// Labels:  V-src      = read in a pinned source (cited per line)
+//          UNKNOWN-PH = PENDING-HARDWARE; resolve with the read-only device audit (T7)
+//
+// Pinned sources cited below:
+//   MU    = WOA-Project/mu_andromeda_platforms@613e2eac87 (Platforms/SurfaceDuo1Pkg)
+//   ACPI  = WOA-Project/SurfaceDuo-ACPI@ab2751d09d
+//   LINUX = torvalds/linux@aebb727447 arch/arm64/boot/dts/qcom/{sm8150.dtsi,
+//           sm8150-microsoft-surface-duo.dts}
+//   SOC   = guowenye/UniXNU-sm8150-common@f8bc872ce6 dts/sm8150.dtsi (included below;
+//           its values were observed on raphael, NOT on epsilon)
+/dts-v1/;
+/include/ "sm8150.dtsi"
+
+/ {
+  // V-src: LINUX sm8150-microsoft-surface-duo.dts lines 16-17.
+  model = "Microsoft Surface Duo";
+  compatible = "microsoft,surface-duo", "qcom,sm8150";
+  // qcom,msm-id: SM8150 = 0x153 (V-src: MU SurfaceDuo1.fdf / ImageResources/Epsilon/dtb).
+  //   Second cell (SoC revision) and qcom,board-id: UNKNOWN-PH (read live /sys/firmware/fdt).
+  //   Not emitted until measured.
+
+  // DRAM: 6 GiB, PcdSystemMemorySize 0x180000000 (V-src: MU SurfaceDuo1.dsc;
+  // PlatformDdrBankMapLib.c). Banks:
+  //   bank0 0x0_80000000 + 0x3CC00000
+  //   bank1 0x0_C0000000 + 0x80000000
+  //   bank2 0x1_40000000 + 0xC0000000
+  // 0x0_BCC00000..0x0_C0000000 (0x3400000, 52 MiB) is a carveout and is NOT part of any bank.
+  // Sum of banks = 0x17CC00000 = 0x180000000 - 0x3400000.
+  // Live banks vs the MU static map: UNKNOWN-PH (compare live FDT and /proc/iomem).
+  memory@80000000 {
+    device_type = "memory";
+    reg = <0x0 0x80000000 0x0 0x3cc00000
+           0x0 0xc0000000 0x0 0x80000000
+           0x1 0x40000000 0x0 0xc0000000>;
+  };
+
+  // reserved-memory: UNKNOWN-PH. Intentionally no nodes yet.
+  //   A partial list would read as "everything else is free". The full list must come from
+  //   MU PlatformMemoryMapLib and the live FDT. Known V-src regions, for reference only:
+  //     0x85700000 + 0x600000   QHEE hypervisor (Track A, parent docs/hardware.md EL row;
+  //                             MU ModuleEntryPoint.S / KernelErrataPatcherLib.c)
+  //     0x80600000 + 0x2400000  DuoWOA "Display Reserved" (Track A, docs/hardware.md GOP row;
+  //                             MU SurfaceDuo1.dsc / UefiPlatEpsilon.cfg)
+  //   Whether the GOP framebuffer base equals 0x80600000: UNKNOWN-PH.
+
+  // Framebuffer: UNKNOWN-PH. One GOP, 1350x1800x32 (V-src: MU patched DisplayDxe), left
+  //   panel on DSI0 only. Base address, stride, pixel format and whether MDP keeps
+  //   refreshing after ExitBootServices are all PENDING-HARDWARE (read boot_args->Video).
+  //   No simple-framebuffer node is emitted until measured.
+
+  // UFS: UNKNOWN-PH. Host 0x1D84000 (+0x14000), GSIV 0x129, reset GPIO 175 (V-src: ACPI
+  //   DSDT UFS0; LINUX &ufs_mem_hc), SMMU stream 0x300 (V-src: LINUX). Controller/PHY/clock
+  //   and SMMU state after ExitBootServices (takeover state) and UFS version: UNKNOWN-PH.
+  //   Not described here until a read-only takeover contract exists (raphael model).
+};
+
+// CPUs: 8 cores, MPIDR 0x000..0x700 (V-src: MU AndromedaPkg ArmPlatformLib.c; ACPI APIC.aml).
+// The included SOC dtsi already declares cpu@0..cpu@700 with these reg values and
+// enable-method = "psci"; restated here so the epsilon citation is explicit.
+// Enabled-CPU policy (XNU bring-up = single boot CPU, raphael model): UNKNOWN-PH.
+&{/cpus/cpu@0}   { reg = <0x0 0x000>; };
+&{/cpus/cpu@100} { reg = <0x0 0x100>; };
+&{/cpus/cpu@200} { reg = <0x0 0x200>; };
+&{/cpus/cpu@300} { reg = <0x0 0x300>; };
+&{/cpus/cpu@400} { reg = <0x0 0x400>; };
+&{/cpus/cpu@500} { reg = <0x0 0x500>; };
+&{/cpus/cpu@600} { reg = <0x0 0x600>; };
+&{/cpus/cpu@700} { reg = <0x0 0x700>; };
+// timebase-frequency (inherited 0x124f800 = 19.2 MHz from SOC/raphael): epsilon CNTFRQ_EL0
+// is UNKNOWN-PH (only the XO is cited, MU RightDisplayDxe/Dpu.c:231).
+
+// GICv3 (GIC-500): GICD 0x17A00000 (+0x10000), GICR 0x17A60000 (+0x100000, 8 frames,
+// stride 0x20000), maintenance PPI 9 (V-src: ACPI APIC.aml; LINUX sm8150.dtsi).
+&gic {
+  reg = <0x0 0x17a00000 0x0 0x10000
+         0x0 0x17a60000 0x0 0x100000>;
+  redistributor-stride = <0x0 0x20000>;
+  interrupts = <0x1 0x9 0x4>;
+};
+
+// Architected timer (V-src: ACPI GTDT.aml; LINUX sm8150.dtsi timer{}):
+//   GIC_PPI 1 -> INTID 17  secure EL1 physical
+//   GIC_PPI 2 -> INTID 18  non-secure EL1 physical   <- NS-EL1 = 18
+//   GIC_PPI 3 -> INTID 19  virtual                   <- virtual = 19
+//   GIC_PPI 0 -> INTID 16  non-secure EL2 physical
+// Do NOT use INTID 27 (SM8350 / UniXNU ArmCpu hard-coded value, blocker B1).
+// Which PPI actually fires under QHEE at EL1 (physical 18 vs virtual 19): UNKNOWN-PH.
+// clock-frequency inherited from SOC (19.2 MHz): UNKNOWN-PH for epsilon (read CNTFRQ_EL0).
+&{/timer} {
+  interrupts = <0x1 0x1 0xf08
+                0x1 0x2 0xf08
+                0x1 0x3 0xf08
+                0x1 0x0 0xf08>;
+};

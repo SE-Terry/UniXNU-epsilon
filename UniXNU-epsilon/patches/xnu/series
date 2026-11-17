@@ -1,0 +1,25 @@
+# epsilon board XNU patches, one per line in application order. '#' starts a comment.
+#
+# EMPTY BY DESIGN in this scaffold: no patch body has been copied or written yet, so the
+# resolver applies zero device patches. The plan below lists the raphael patches
+# (guowenye/UniXNU-raphael@1c435f2291 patches/xnu/) to be reviewed, renamed epsilon-*,
+# and re-derived for epsilon in a later task. Do not uncomment a line until the patch file
+# exists in this directory and its hardware assumptions were checked against epsilon.
+#
+# --- default series (raphael patches/xnu/series) ---
+# epsilon-bootcpu.patch          <- raphael-bootcpu.patch (52 lines): independent boot-CPU
+#                                   personality (replaces ArmCpu IOClass) + physical timer
+#                                   decrementer. epsilon: parameterise timer INTID (virtual 19
+#                                   / NS-EL1 18, never 27); which PPI fires is UNKNOWN-PH.
+# epsilon-cpu-ownership.patch    <- raphael-cpu-ownership.patch (23 lines): keep the owned
+#                                   boot-CPU nub out of Apple-specific CPU probes.
+# (raphael-desktop-data-seed.patch: emulator-only scratch Data; review before adopting.)
+# (raphael-platform-uuid.patch: explicit non-Apple platform UUID; review before adopting.)
+#
+# --- explicit handset-storage series (raphael patches/xnu/handset-storage.series) ---
+# Kept OUT of the default series; belongs in a separate opt-in series file.
+# epsilon-ufs-controller.patch   <- raphael-ufs-controller.patch (15 lines): read-only UFS
+#                                   controller integration. epsilon: SMMU stream 0x300, host
+#                                   0x1D84000; UFS takeover state UNKNOWN-PH.
+# epsilon-pmgr-compat.patch      <- raphael-pmgr-compat.patch (12 lines): original
+#                                   ApplePMGRNub unsupported-AON branch; no PMGR hardware claim.

@@ -1,0 +1,158 @@
+            SECTION PE32 = BIN(cambria):Ms_Network/Ms_Network.efi
+            SECTION PE32 = BIN(cambria):QcomPkg/Drivers/UsbBusDxe/UsbBusDxe.efi
+            SECTION PE32 = BIN(cambria):QcomPkg/Drivers/UsbKbDxe/UsbKbDxe.efi
+            SECTION PE32 = BIN(cambria):QcomPkg/Drivers/UsbMassStorageDxe/UsbMassStorageDxe.efi
+            SECTION PE32 = BIN(cambria):QcomPkg/Drivers/XhciDxe/XhciDxe.efi
+            SECTION PE32 = BIN:QcomPkg/Drivers/CipherDxe/CipherDxe.efi
+            SECTION PE32 = BIN:QcomPkg/Drivers/HashDxe/HashDxe.efi
+            SECTION PE32 = BIN:QcomPkg/Drivers/LimitsDxe/LimitsDxe.efi
+            SECTION PE32 = BIN:QcomPkg/Drivers/RNGDxe/RngDxe.efi
+            SECTION PE32 = BIN:Sm8150FamilyPkg/Override/MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.efi
+            SECTION PE32 = BIN:Sm8150FamilyPkg/Override/MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.efi
+            SECTION RAW = BIN:QcomPkg/Drivers/CipherDxe/CipherDxe.raw
+            SECTION RAW = BIN:QcomPkg/Drivers/HashDxe/HashDxe.raw
+            SECTION RAW = BIN:QcomPkg/Drivers/LimitsDxe/LimitsDxe.raw
+            SECTION RAW = BIN:QcomPkg/Drivers/RNGDxe/RngDxe.raw
+        SECTION RAW = BIN:RawFiles/BATTERY.PROVISION
+        SECTION RAW = BIN:RawFiles/BDS_Menu.cfg
+        SECTION RAW = BIN:RawFiles/Panel_boe_amoled_wqhd_dsc_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_boe_amoled_wqhd_dsc_vid.xml
+        SECTION RAW = BIN:RawFiles/Panel_nt36850_truly_wqhd_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_primary_sharp_1080p_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_sdx55_sharp_4k_dsc_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_sdx55_sharp_4k_dsc_vid.xml
+        SECTION RAW = BIN:RawFiles/Panel_sdx55_truly_wqxga_dual_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_sdx55_truly_wqxga_dual_vid.xml
+        SECTION RAW = BIN:RawFiles/Panel_secondary_truly_1080p_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_sharp_1080p_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_sharp_4k_dsc_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_sharp_4k_dsc_vid.xml
+        SECTION RAW = BIN:RawFiles/Panel_truly_1080p_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_truly_1080p_vid.xml
+        SECTION RAW = BIN:RawFiles/Panel_truly_wqxga_dsc_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_truly_wqxga_dsc_vid.xml
+        SECTION RAW = BIN:RawFiles/Panel_truly_wqxga_dual_cmd.xml
+        SECTION RAW = BIN:RawFiles/Panel_truly_wqxga_dual_vid.xml
+        SECTION RAW = BIN:RawFiles/QcomChargerCfg.cfg
+        SECTION RAW = BIN:RawFiles/SecParti.cfg
+        SECTION RAW = BIN:RawFiles/battery_symbol_DebugBoot.bmp
+        SECTION RAW = BIN:RawFiles/battery_symbol_DebugStay.bmp
+        SECTION RAW = BIN:RawFiles/uefipil.cfg
+        SECTION RAW = QcomPkg/PatchedBinaries/battery_error.bmp
+        SECTION RAW = QcomPkg/PatchedBinaries/battery_plugged_in.bmp
+        SECTION RAW = QcomPkg/PatchedBinaries/battery_plugged_in_low.bmp
+        SECTION RAW = QcomPkg/PatchedBinaries/battery_symbol_Nocharger.bmp
+        SECTION RAW = QcomPkg/PatchedBinaries/logo1.bmp
+        SECTION RAW = QcomPkg/PatchedBinaries/low_battery.bmp
+        SECTION RAW = QcomPkg/PatchedBinaries/temperature_warning.bmp
+    INF BIN(cambria):QcomPkg/Drivers/CPRDxe/CPRDxe.inf
+    INF BIN(cambria):QcomPkg/Drivers/ShmBridgeDxe/ShmBridgeDxe.inf
+    INF BIN(cambria):QcomPkg/Drivers/UsbInitDxe/UsbInitDxe.inf
+    INF BIN(cambria):QcomPkg/Drivers/XhciPciEmulationDxe/XhciPciEmulationDxe.inf
+    INF BIN:EpsilonPkg/GpioButtonsDxe/GpioButtons.inf
+    INF BIN:MsSurfaceCorePkg/SurfaceTouchHidDxe/SurfaceTouchHidDxe.inf
+    INF BIN:QcomPkg/Application/QcomChargerApp/QcomChargerApp.inf
+    INF BIN:QcomPkg/Drivers/AdcDxe/AdcDxe.inf
+    INF BIN:QcomPkg/Drivers/ButtonsDxe/ButtonsDxe.inf
+    INF BIN:QcomPkg/Drivers/ChargerExDxe/ChargerExDxe.inf
+    INF BIN:QcomPkg/Drivers/ChipInfoDxe/ChipInfoDxe.inf
+    INF BIN:QcomPkg/Drivers/ClockDxe/ClockDxe.inf
+    INF BIN:QcomPkg/Drivers/CmdDbDxe/CmdDbDxe.inf
+    INF BIN:QcomPkg/Drivers/DDRInfoDxe/DDRInfoDxe.inf
+    INF BIN:QcomPkg/Drivers/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
+    INF BIN:QcomPkg/Drivers/EnvDxe/EnvDxe.inf
+    INF BIN:QcomPkg/Drivers/FontDxe/FontDxe.inf
+    INF BIN:QcomPkg/Drivers/GpiDxe/GpiDxe.inf
+    INF BIN:QcomPkg/Drivers/HALIOMMUDxe/HALIOMMUDxe.inf
+    INF BIN:QcomPkg/Drivers/HWIODxe/HWIODxe.inf
+    INF BIN:QcomPkg/Drivers/I2CDxe/I2CDxe.inf
+    INF BIN:QcomPkg/Drivers/NpaDxe/NpaDxe.inf
+    INF BIN:QcomPkg/Drivers/PILDxe/PILDxe.inf
+    INF BIN:QcomPkg/Drivers/PdcDxe/PdcDxe.inf
+    INF BIN:QcomPkg/Drivers/PlatformInfoDxe/PlatformInfoDxe.inf
+    INF BIN:QcomPkg/Drivers/PmicDxe/PmicDxeLa.inf
+    INF BIN:QcomPkg/Drivers/QcomChargerDxe/QcomChargerDxeLA.inf
+    INF BIN:QcomPkg/Drivers/QcomMpmTimerDxe/QcomMpmTimerDxe.inf
+    INF BIN:QcomPkg/Drivers/QcomWDogDxe/QcomWDogDxe.inf
+    INF BIN:QcomPkg/Drivers/ResetRuntimeDxe/ResetRuntimeDxe.inf
+    INF BIN:QcomPkg/Drivers/RpmhDxe/RpmhDxe.inf
+    INF BIN:QcomPkg/Drivers/SPIDxe/SPIDxe.inf
+    INF BIN:QcomPkg/Drivers/SPMIDxe/SPMIDxe.inf
+    INF BIN:QcomPkg/Drivers/SdccDxe/SdccDxe.inf
+    INF BIN:QcomPkg/Drivers/SimpleTextInOutSerialDxe/SimpleTextInOutSerial.inf
+    INF BIN:QcomPkg/Drivers/SmemDxe/SmemDxe.inf
+    INF BIN:QcomPkg/Drivers/TLMMDxe/TLMMDxe.inf
+    INF BIN:QcomPkg/Drivers/TsensDxe/TsensDxe.inf
+    INF BIN:QcomPkg/Drivers/TzDxe/ScmDxeLA.inf
+    INF BIN:QcomPkg/Drivers/TzDxe/TzDxeLA.inf
+    INF BIN:QcomPkg/Drivers/UFSDxe/UFSDxe.inf
+    INF BIN:QcomPkg/Drivers/ULogDxe/ULogDxe.inf
+    INF BIN:QcomPkg/Drivers/UsbDeviceDxe/UsbDeviceDxe.inf
+    INF BIN:QcomPkg/Drivers/UsbMsdDxe/UsbMsdDxe.inf
+    INF BIN:QcomPkg/Drivers/UsbPwrCtrlDxe/UsbPwrCtrlDxe.inf
+    INF BIN:QcomPkg/Drivers/UsbfnDwc3Dxe/UsbfnDwc3Dxe.inf
+    INF BIN:QcomPkg/Drivers/VerifiedBootDxe/VerifiedBootDxe.inf
+    INF BIN:Sm8150FamilyPkg/Drivers/ExtFgDxe/ExtFgDxe.inf
+    INF BIN:Sm8150FamilyPkg/Drivers/MsEnvDxe/MsEnvDxe.inf
+    INF BIN:Sm8150FamilyPkg/Drivers/MsManufacturingModeDxe/MsManufacturingMode.inf
+    INF BIN:Sm8150FamilyPkg/Drivers/SfpdUtils/SfpdUtils.inf
+    INF BIN:Sm8150FamilyPkg/Drivers/TouchControllerInitDxe/TouchControllerInitDxe.inf
+    INF BIN:Sm8150FamilyPkg/Drivers/VarLockNullDxe/VarLockNullDxe.inf
+    INF BIN:Sm8150FamilyPkg/Override/MdeModulePkg/Universal/Variable/UefiVariablePolicy/Dxe/VariablePolicyNullDxe.inf
+    INF QcomPkg/PatchedBinaries/05472C14-ACB9-4458-A354-A68357AC3BF0.inf
+    INF QcomPkg/PatchedBinaries/ColorbarsDxe.inf
+    INF QcomPkg/PatchedBinaries/DALSYSDxe.inf
+    INF QcomPkg/PatchedBinaries/DisplayDxe.inf
+    INF QcomPkg/PatchedBinaries/UsbConfigDxe.inf
+    SECTION RAW = AndromedaPkg/Include/Resources/BootLogo.bmp
+    SECTION RAW = BIN:RawFiles/uefiplat.cfg
+    SECTION RAW = SurfaceDuo1Pkg/Include/Resources/RegulatoryLogos.png
+  INF AdvLoggerPkg/AdvancedFileLogger/AdvancedFileLogger.inf
+  INF AndromedaPkg/Driver/SecureBootProvisioningDxe/SecureBootProvisioningDxe.inf
+  INF AndromedaPkg/Driver/SurfaceFirmwareProvisioningDataDxe/SurfaceFirmwareProvisioningDataDxe.inf
+  INF AndromedaPkg/PrePi/PeiUniCore.inf
+  INF AndromedaPkg/UFP/ufpdevicefw.inf
+  INF ArmPkg/Drivers/ArmGicDxe/ArmGicDxe.inf
+  INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
+  INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
+  INF EmbeddedPkg/Drivers/VirtualKeyboardDxe/VirtualKeyboardDxe.inf
+  INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
+  INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
+  INF FatPkg/EnhancedFatDxe/Fat.inf
+  INF HidPkg/HidKeyboardDxe/HidKeyboardDxe.inf
+  INF MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpressDxe.inf
+  INF MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
+  INF MdeModulePkg/Bus/Scsi/ScsiBusDxe/ScsiBusDxe.inf
+  INF MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
+  INF MdeModulePkg/Bus/Usb/UsbMouseAbsolutePointerDxe/UsbMouseAbsolutePointerDxe.inf
+  INF MdeModulePkg/Core/Dxe/DxeMain.inf
+  INF MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+  INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
+  INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
+  INF MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
+  INF MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTableDxe/FirmwarePerformanceDxe.inf
+  INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
+  INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
+  INF MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
+  INF MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
+  INF MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
+  INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
+  INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+  INF MdeModulePkg/Universal/DriverHealthManagerDxe/DriverHealthManagerDxe.inf
+  INF MdeModulePkg/Universal/EsrtFmpDxe/EsrtFmpDxe.inf
+  INF MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
+  INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
+  INF MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe.inf
+  INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+  INF MdeModulePkg/Universal/PrintDxe/PrintDxe.inf
+  INF MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
+  INF MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
+  INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
+  INF MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
+  INF MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe.inf
+  INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+  INF MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+  INF QcomCommonPkg/Driver/SmBiosTableDxe/SmBiosTableDxe.inf
+  INF QcomModulePkg/Application/LinuxLoader/LinuxLoader.inf
+  INF QcomPkg/PatchedBinaries/HidMouseAbsolutePointerDxe.inf
+  INF SurfaceDuo1Pkg/AcpiTables/AcpiTables.inf

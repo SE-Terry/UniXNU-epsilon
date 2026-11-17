@@ -1,0 +1,63 @@
+diff --git a/Platforms/AndromedaPkg/PlatformBuild.py b/Platforms/AndromedaPkg/PlatformBuild.py
+index bb8e3447..c966998a 100644
+--- a/Platforms/AndromedaPkg/PlatformBuild.py
++++ b/Platforms/AndromedaPkg/PlatformBuild.py
+@@ -46,6 +46,12 @@ def GetBoard():
+ 
+     return board
+ 
++def GetExtraPackagesPath():
++    # iPhoneDuo: out-of-tree package roots (UniXNUPkg, DarwinBootPkg,
++    # EpsilonUniXNUPkg), os.pathsep-separated absolute directories.
++    extra = os.environ.get("UNIXNU_PACKAGES_PATH", "")
++    return tuple(p for p in extra.split(os.pathsep) if p)
++
+ def GetPlatformPackagesPath():
+     board = GetBoard()
+     return (
+@@ -58,7 +64,7 @@ def GetPlatformPackagesPath():
+         "Binaries",
+         BOARD_CONFIGS[board]["silicon"],
+         "Silicon/QC/Common"
+-    )
++    ) + GetExtraPackagesPath()
+ 
+ # ####################################################################################### #
+ #                                Common Configuration                                     #
+diff --git a/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.dsc b/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.dsc
+index 8eab5815..0ab9152b 100644
+--- a/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.dsc
++++ b/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.dsc
+@@ -45,6 +45,11 @@
+   PLATFORM_HAS_GIC_V3_WITHOUT_IRM_FLAG_SUPPORT_ERRATA = 0
+   PLATFORM_HAS_PSCI_MEMPROTECT_FAILING_ERRATA         = 1
+
++  # iPhoneDuo: UniXNU integration switches (see EpsilonUniXNUPkg/EpsilonUniXNU.dsc.inc)
++  # BOOT_OPTION 0 = stock BootOrder untouched (bring-up default); 1 = opt-in only
++  UNIXNU_BOOT_OPTION             = 0
++  UNIXNU_FV_PAYLOAD              = 1
++
+ [PcdsFixedAtBuild.common]
+   # Platform-specific
+   gArmTokenSpaceGuid.PcdSystemMemorySize|0x180000000        # 6GB Size
+@@ -81,3 +86,6 @@
+ [Components.common]
+   SurfaceDuo1Pkg/AcpiTables/AcpiTables.inf
+   #SurfaceDuo1Pkg/Driver/RightDisplayDxe/RightDisplayDxe.inf
++
++# iPhoneDuo: UniXNU + DarwinBoot + FV-embedded payload
++!include EpsilonUniXNUPkg/EpsilonUniXNU.dsc.inc
+diff --git a/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.fdf b/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.fdf
+index ed5cf6ff..19f0cf43 100644
+--- a/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.fdf
++++ b/Platforms/SurfaceDuo1Pkg/SurfaceDuo1.fdf
+@@ -187,6 +187,9 @@ READ_LOCK_STATUS   = TRUE
+ 
+   INF QcomModulePkg/Application/LinuxLoader/LinuxLoader.inf
+ 
++  # iPhoneDuo: UniXNU + DarwinBoot + FV-embedded payload
++  !include EpsilonUniXNUPkg/EpsilonUniXNU.fdf.inc
++
+ [FV.FVMAIN_COMPACT]
+ FvAlignment        = 8
+ ERASE_POLARITY     = 1

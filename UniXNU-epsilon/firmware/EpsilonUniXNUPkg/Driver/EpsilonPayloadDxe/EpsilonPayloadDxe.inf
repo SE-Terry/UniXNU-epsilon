@@ -1,0 +1,40 @@
+## @file
+#  FV-embedded UniXNU payload volume for Surface Duo 1 (epsilon).
+#  See ../../../README.md. Not booted on hardware.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001B
+  BASE_NAME                      = EpsilonPayloadDxe
+  FILE_GUID                      = 8EE9E414-6E7A-4ED2-9A6F-D1B048317D1B
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = EpsilonPayloadDxeEntry
+
+[Sources]
+  EpsilonPayloadDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EpsilonUniXNUPkg/EpsilonUniXNUPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+
+[Guids]
+  gEpsilonPayloadFileGuid                       ## CONSUMES ## File
+
+[Protocols]
+  gEfiBlockIoProtocolGuid                       ## PRODUCES
+  gEfiDevicePathProtocolGuid                    ## PRODUCES
+  gEfiFirmwareVolume2ProtocolGuid               ## CONSUMES
+
+[Depex]
+  TRUE

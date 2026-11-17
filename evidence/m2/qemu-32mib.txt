@@ -1,0 +1,11 @@
+UEFI firmware (version 2024.02-2ubuntu0.10 built at 15:40:28 on Sep 23 2026)
+[=3h[=3hBdsDxe: loading Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x1,0x0)
+BdsDxe: starting Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x1,0x0)
+M2 FIXTURE: entered under AAVMF
+DARWINBOOT: loader v2 installed EL1
+M2 FIXTURE: requesting kernel and ADT through pinned DarwinBoot
+DARWINBOOT: ARM64 va=0xFFFFFFF007004000 pa=0x48004000 args=0x4A008000 entry=0x48005000 owned=0x10000000
+DARWINBOOT: video base=0x0 display=0 row=0 width=0 height=0 depth=0
+DARWINBOOT: command line: darwinboot.fixture=1
+DARWINBOOT: inputs validated; exiting boot services
+DARWINBOOT-FIXTURE: boot_args, RAMDisk, TrustCache, 32 MiB Mach-O tail, zero-fill and MMU-off entry PASS

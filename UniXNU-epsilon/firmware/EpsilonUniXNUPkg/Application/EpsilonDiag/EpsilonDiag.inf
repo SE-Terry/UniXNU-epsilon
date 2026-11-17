@@ -1,0 +1,41 @@
+## @file
+#  Read-only UEFI diagnostic for Surface Duo 1 (epsilon). Prints "UNIXNU:"
+#  lines (ID registers, GOP mode, memory map summary) on the panel and returns.
+#  Started by UniXNU through an fv:<FILE_GUID> entry; see ../../../README.md.
+#
+#  Host build only. Not run on hardware.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001B
+  BASE_NAME                      = EpsilonDiag
+  FILE_GUID                      = E59FE912-1804-4BB0-B27E-DAE17C9A703A
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = EpsilonDiagMain
+
+#
+#  VALID_ARCHITECTURES           = AARCH64
+#
+
+[Sources]
+  EpsilonDiag.c
+  DiagCore.c
+  DiagCore.h
+
+[Sources.AARCH64]
+  AArch64/SysReg.S
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  DebugLib
+  MemoryAllocationLib
+  UefiApplicationEntryPoint
+  UefiBootServicesTableLib
+
+[Protocols]
+  gEfiGraphicsOutputProtocolGuid                ## SOMETIMES_CONSUMES

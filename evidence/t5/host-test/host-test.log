@@ -1,0 +1,6 @@
+report: 57 lines (budget 60, plus the HOLD line)
+longest line: 51 characters
+1350x1800: scale 3, 63 columns x 62 rows, cell 18x27 px
+preview: epsilon-diag-preview.rgb (1350x1800 RGB24, SAMPLE values)
+epsilon-diag host test: 0 failure(s)
+preview png: epsilon-diag-preview.png

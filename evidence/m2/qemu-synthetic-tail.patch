@@ -1,0 +1,23 @@
+--- a/Test/Kernel.S
++++ b/Test/Kernel.S
+@@ -151,6 +151,11 @@
+   cbnz x8, failed
+   subs x7, x7, #1
+   b.ne 1b
++  ldr x6, =0x02001ff8
++  ldr x7, [x5, x6]
++  ldr x8, =0x31444e452d324d55
++  cmp x7, x8
++  b.ne failed
+   adr x6, command_line
+   add x7, x0, #0x6c
+ 2:
+@@ -182,7 +187,7 @@
+ #if FIXTURE_GOP
+   .asciz "DARWINBOOT-FIXTURE: actual GOP boot video after ExitBootServices PASS\n"
+ #else
+-  .asciz "DARWINBOOT-FIXTURE: boot_args, RAMDisk, TrustCache, zero-fill and MMU-off entry PASS\n"
++  .asciz "DARWINBOOT-FIXTURE: boot_args, RAMDisk, TrustCache, 32 MiB Mach-O tail, zero-fill and MMU-off entry PASS\n"
+ #endif
+ failure:
+   .asciz "DARWINBOOT-FIXTURE: FAIL\n"

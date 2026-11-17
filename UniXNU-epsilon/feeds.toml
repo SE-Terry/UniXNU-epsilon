@@ -1,0 +1,13 @@
+# Source pins for UniXNU-epsilon (Project iPhoneDuo).
+#
+# Framework: UniXNU/UniXNU@21d683dff61c66f219f03ab9d8b9249026514788 (pinned in board.toml
+# [package] unixnu_revision; the base feeds.toml of that revision supplies xnu, libplatform,
+# libdispatch, AvailabilityVersions, edk2, libpthread, corecrypto-2023 and IOStorageFamily).
+#
+# Shared SoC source. Same reviewed commit as guowenye/UniXNU-raphael@1c435f2291 feeds.toml.
+# A sibling checkout may override it in the ignored local.toml (see local.toml.example).
+[[source]]
+name = "sm8150"
+kind = "soc"
+git = "https://github.com/guowenye/UniXNU-sm8150-common.git"
+commit = "f8bc872ce6254a84ecae839edcba9145a591e655"

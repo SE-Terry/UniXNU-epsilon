@@ -1,0 +1,10 @@
+# epsilon (Surface Duo 1, SM8150) -- compile-records only. No phone platform/driver claim.
+# Applied after arch:configs/common.config and soc:configs/sm8150.config (board.toml
+# [kernel] config_fragments). Mirrors guowenye/UniXNU-raphael@1c435f2291 raphael_defconfig;
+# every native hardware consumer stays off until its epsilon inputs are measured.
+CONFIG_XNU_CRYPTO_BOOTSTRAP="prelinked"
+CONFIG_XNU_BOOT_PROGRESS=n
+CONFIG_XNU_NATIVE_UFS=n
+CONFIG_XNU_NATIVE_ADRENO=n
+CONFIG_XNU_NATIVE_RAM_BLOCK=n
+CONFIG_XNU_NATIVE_MOBILE_DISPLAY=n

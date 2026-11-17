@@ -1,0 +1,10 @@
+# Copy to the ignored local.toml; adapt paths to your checked-out sources.
+# Relative paths resolve from this file. Local sources are not reproducible: unixnu status
+# reports them as unpinned, and unixnu.lock never records them.
+#
+# Optional: use a sibling checkout of the SoC repository at the feeds.toml commit
+# (f8bc872ce6254a84ecae839edcba9145a591e655) instead of the fetched copy.
+# [[source]]
+# kind = "soc"
+# name = "sm8150"
+# local = "../UniXNU-sm8150-common"

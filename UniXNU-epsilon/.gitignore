@@ -1,0 +1,26 @@
+# Local inputs and build outputs (UniXNU template + raphael additions)
+/local.toml
+/unixnu.local.toml
+/.cache/
+/.venv/
+/build/
+/out/
+/artifacts/
+/logs/
+/sources/
+/evidence/private/
+__pycache__/
+*.py[cod]
+# Never commit images, firmware, dumps, keys or device identifiers
+*.img
+*.raw
+*.fd
+*.efi
+*.dtb
+*.macho
+*.ipsw
+*.pem
+*.key
+*.p12
+*.pfx
+.DS_Store

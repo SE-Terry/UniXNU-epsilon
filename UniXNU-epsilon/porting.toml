@@ -1,0 +1,221 @@
+# UniXNU porting record for epsilon (Project iPhoneDuo).
+# Schema: UniXNU/UniXNU@21d683dff61c66f219f03ab9d8b9249026514788 docs/porting/records.md,
+# examples/device/porting.toml, scripts/porting-record.py.
+#
+# Identity must match board.toml, so device.os_profile is the RESOLVABLE DIAGNOSTIC profile
+# (ipados-17.7.11-21H461, arm64). The PROJECT PRIMARY TARGET is iOS 27
+# (ipados-27.0.1-24A446, arm64e) and is UNVERIFIED-PENDING-HARDWARE; see the configuration
+# and cpu areas. Device: NOT contacted. Every UNKNOWN-PH value needs the read-only device
+# audit (Phase 1 T7) before it can be used.
+schema_version = 1
+
+[device]
+name = "epsilon"
+soc = "SM8150"
+os_profile = "ipados-17.7.11-21H461"
+summary = "Microsoft Surface Duo 1 scaffold. Primary target iOS 27 (ipados-27.0.1-24A446, arm64e) is UNVERIFIED-PENDING-HARDWARE: SM8150 Kryo 485 is ARMv8.2-A and is inferred to lack FEAT_PAuth. Resolvable diagnostic profile ipados-17.7.11-21H461 (arm64). Host resolution only; no build, no boot, device not contacted."
+
+[[area]]
+id = "configuration"
+status = "implemented"
+components = ["ArmDTPlatform"]
+paths = ["board.toml", "feeds.toml", "unixnu.lock", "local.toml.example", "configs/**", ".gitignore", ".github/**", "porting.toml", "README.md", "AGENTS.md"]
+inputs = ["UniXNU/UniXNU@21d683dff61c66f219f03ab9d8b9249026514788 (arm64 profile, ipados-17.7.11-21H461 profile); guowenye/UniXNU-sm8150-common@f8bc872ce6254a84ecae839edcba9145a591e655 (soc_source sm8150); template guowenye/UniXNU-raphael@1c435f2291edab0eda01bef865bdf4e7d69a9aa2.", "Primary target ipados-27.0.1-24A446 (arm64e, xnu-12377.121.6): UNVERIFIED-PENDING-HARDWARE. Declared in board.toml [iphoneduo]; not resolved by this configuration."]
+configuration = ["schema_version 2; [board] name epsilon, soc SM8150, soc_source sm8150, os_profile ipados-17.7.11-21H461, kit epsilon, example true (safety latch: build/bootimg/release refuse).", "[components] include = XnuPrelink, DarwinBoot, ArmDTPlatform (replaces the arm64 list; ArmCpu excluded for blocker B1, SoftwareAES omitted as in raphael).", "[kernel] defconfig epsilon_defconfig; config_fragments arch:configs/common.config, soc:configs/sm8150.config; patch_series arch, soc, device:patches/xnu/os-bootstrap.series, device:patches/xnu/series; archives build-corecrypto-14.py and build-corecrypto-14.py --namespace.", "[package] unixnu_revision 21d683dff61c66f219f03ab9d8b9249026514788; [package.defconfig] ipados-17.7.11-21H461 = epsilon_defconfig."]
+procedure = ["From the UniXNU checkout: ./unixnu defconfig epsilon_defconfig -D <device> --out <scratch>; ./unixnu fetch -D <device> --out <scratch>; ./unixnu status --json -D <device> --out <scratch>; python3 scripts/porting-record.py check --device <device>."]
+findings = ["The arm64 profile and SoC fragment resolve with the raphael-equivalent patch order. The device series is intentionally empty, so only arch, SoC (empty) and the two XnuPrelink OS-bootstrap patches apply.", "Unknown top-level board tables merge by key and are ignored by the resolver; [iphoneduo] carries the primary-target declaration without changing resolution."]
+completion = ["All profile roots, source pins, component closure and patch order resolve; the package maps to kits/epsilon; the diagnostic profile resolves to arch arm64 and xnu 10063.141.1."]
+limits = ["The configuration is a scaffold: example = true, and no firmware, bootimg, userdata or payload sections are declared (all UNKNOWN-PH).", "No device repository commit exists yet (not a git repository), so no host-verified evidence with a 40-character revision can be recorded.", "iOS 27 is not configured: no os_overrides, defconfig or patch series exist for ipados-27.0.1-24A446."]
+next_action = ["Initialise the device repository in Git when the orchestrator decides, commit, and record the resolution as host evidence with the full revision.", "After the read-only audit, fill [firmware], [bootimg], [payload] and [payload.adt] from measured values only."]
+
+[[area.evidence]]
+kind = "source"
+reference = "board.toml"
+result = "Format-2 board configuration with resolvable diagnostic profile and informational iOS 27 declaration."
+
+[[area.evidence]]
+kind = "source"
+reference = "feeds.toml"
+result = "SoC source pinned to f8bc872ce6254a84ecae839edcba9145a591e655."
+
+[[area]]
+id = "firmware"
+status = "planned"
+components = ["DarwinBoot"]
+paths = ["package/firmware/**", "proprietary-files.txt", "scripts/package.sh"]
+inputs = ["Firmware base WOA-Project/mu_andromeda_platforms@613e2eac87 Platforms/SurfaceDuo1Pkg (V-src), stock DXE blobs WOA-Project/SurfaceDuoBinaries@1f458b7914.", "UEFI runs at EL1 under Qualcomm QHEE (V-src, MU); PSCI 1.0 via SMC (V-src, Linux sm8150.dtsi).", "UNKNOWN-PH: stock FD reproduction and sha256 (expected 0x2EF000 bytes, Phase 1 T1), FD headroom, stock ABL acceptance of the UniXNU boot-image format, live linux,initrd range and x0 value, GOP framebuffer base."]
+configuration = ["No [firmware] or [bootimg] section is declared. Planned: FV-embedded UniXNU/DarwinBoot payload in SurfaceDuo1Pkg (avoids blocker B-FW1)."]
+procedure = ["Reproduce the stock epsilon FD on the host (T1), design the DSC/FDF hooks (T3), then embed a tiny read-only diagnostic payload (package/firmware/README.md)."]
+findings = ["DuoWOA is not Mu-Silicium: BootConfigShim overwrites x0 and the ABL FDT pointer is lost, so the standard initrd payload discovery does not work unmodified (B-FW1, V-src MU BootConfigShim.S).", "Secure Boot is on by default (B-FW5); modules must be FV-embedded or built from the NoSb configuration."]
+completion = ["Host: the FD builds reproducibly with the payload and fits the FD size. Device (separately approved): UNIXNU lines appear on the left panel, and Android and Windows boot unchanged afterwards."]
+limits = ["No firmware recipe, no FD build and no device boot. Boot-image header and ABL behaviour on the Duo are UNKNOWN-PH."]
+next_action = ["Phase 1 T1: reproduce the pinned stock epsilon FD and record its sha256 and host prerequisites."]
+evidence = []
+
+[[area]]
+id = "cpu"
+status = "planned"
+components = []
+paths = ["dts/**", "patches/xnu/series"]
+inputs = ["8 CPUs, MPIDR 0x000..0x700 (V-src: MU ArmPlatformLib.c, ACPI APIC.aml); CPU0-3 A55, CPU4-6 A76, CPU7 A76 prime (Kryo 485).", "GICv3 GIC-500: GICD 0x17A00000 (+0x10000), GICR 0x17A60000 (+0x100000, stride 0x20000), maintenance PPI 9 (V-src: ACPI APIC.aml, Linux).", "Arch timer INTIDs: virtual 19 (PPI 3), NS-EL1 physical 18 (PPI 2), secure 17, NS-EL2 16 (V-src: ACPI GTDT.aml, Linux timer node). INTID 27 is SM8350 and must not be used.", "UNKNOWN-PH: CNTFRQ_EL0 (19.2 MHz assumed), CurrentEL, which timer PPI fires under QHEE, enabled-CPU policy."]
+configuration = ["dts/epsilon.dts restates cpu@0..cpu@700 reg, the &gic reg/stride/maintenance interrupt and the /timer interrupts over soc:dts/sm8150.dtsi.", "ArmCpu not selected: drivers/ArmCpu@acba4ee ArmCpu.cpp:142-143 hard-codes virtual timer PPI 27 (blocker B1).", "arm64e requirement checks (docs/porting/arm64e.md), all UNVERIFIED-PENDING-HARDWARE: (1) ID_AA64ISAR1_EL1 APA|API and GPA|GPI, or ID_AA64ISAR2_EL1 APA3 and GPA3, nonzero on every CPU; (2) EL1 writes to APIAKey/APIBKey/APDAKey/APDBKey/APGAKey do not trap; (3) PACIA changes and AUTIA restores a pointer on every core."]
+procedure = ["Read-only audit (T7, needs approval): cpuinfo features (paca/pacg expected absent), ID_AA64ISAR1_EL1/ISAR2 on all 8 cores, CNTFRQ_EL0, CurrentEL; then the tiny firmware payload reports the same at EL1."]
+findings = ["Kryo 485 is ARMv8.2-A and the Duo firmware is built with -march=armv8.2-a (MU Andromeda.dsc.inc:640), so FEAT_PAuth is expected to be absent. This is an [A]-grade inference, not a measurement on epsilon.", "raphael (same SoC) replaces ArmCpu with an independent boot-CPU personality and uses the physical timer; the epsilon patch plan follows that model (patches/xnu/series, commented)."]
+completion = ["Every enabled CPU reaches its entry checkpoint, and the measured timer PPI delivers IRQs and EOIs on the boot CPU. Each arm64e requirement check has a recorded device result."]
+limits = ["No CPU or timer code; no measurement. Single-boot-CPU bring-up assumed (raphael model); SMP is deferred (B4)."]
+next_action = ["Run E1 (ID-register PAC check) and the timer-PPI measurement in the approved read-only audit."]
+evidence = []
+
+[[area]]
+id = "memory"
+status = "planned"
+components = []
+paths = ["dts/**"]
+inputs = ["6 GiB DRAM (PcdSystemMemorySize 0x180000000) in banks 0x80000000+0x3CC00000, 0xC0000000+0x80000000, 0x140000000+0xC0000000; carveout 0xBCC00000-0xC0000000 outside the banks (V-src: MU SurfaceDuo1.dsc, PlatformDdrBankMapLib.c).", "Known regions (reference only, not yet emitted): QHEE 0x85700000+0x600000; DuoWOA Display Reserved 0x80600000+0x2400000.", "UNKNOWN-PH: live memory banks, complete reserved-memory list, DMA widths, cache policy, apps_smmu ownership."]
+configuration = ["dts/epsilon.dts memory@80000000 reg lists the three banks. No reserved-memory nodes are emitted: a partial list would read as free RAM."]
+procedure = ["Compile dts/epsilon.dts with dtc against soc:dts; compare against the MU PlatformMemoryMapLib and, after approval, the live FDT and /proc/iomem."]
+findings = ["The three banks sum to 0x17CC00000, which is 0x180000000 minus the 0x3400000 carveout."]
+completion = ["Every handoff region has an owner, lifetime, translation and cache policy; each enabled DMA engine uses only its allocated range."]
+limits = ["DT-described RAM is not free RAM. No ownership grants exist."]
+next_action = ["Derive the full reservation list from MU PlatformMemoryMapLib@613e2eac87, then confirm it against the live FDT in the audit."]
+evidence = []
+
+[[area]]
+id = "storage"
+status = "planned"
+components = []
+paths = ["patches/xnu/series"]
+inputs = ["UFS host 0x1D84000 (+0x14000), GSIV 0x129, reset GPIO 175, SMMU stream 0x300 (V-src: ACPI DSDT UFS0, Linux ufs_mem_hc).", "UNKNOWN-PH: UFS version, controller/PHY/clock/SMMU state after ExitBootServices (takeover state), per-LUN GPT geometry, FBE-encrypted /data compatibility."]
+configuration = ["No storage component selected. CONFIG_XNU_NATIVE_UFS=n and CONFIG_XNU_NATIVE_RAM_BLOCK=n in epsilon_defconfig."]
+procedure = ["Read-only GPT and partition audit with hashes (T7) before any storage design; then adapt the raphael read-only-extents model."]
+findings = ["The UniXNU standard installer shrinks userdata and needs it to be the last partition. That fails with Windows on sda8, so it must not be used (B10).", "The only safe model is raphael's immutable files in /data plus a RAM Data volume, with no GPT changes (parent ADR 0004)."]
+completion = ["Reads: SCSI capacity, GPT and known blocks are correct, and OS/SystemOS extents stay inside authorised files. Root: the configured volume mounts and launchd starts, with no GPT modification."]
+limits = ["No UFS driver, no storage policy, no partition data. Persistent writable Data is out of scope (B5)."]
+next_action = ["Capture the per-LUN GPT read-only in the approved audit; do not design extents before that."]
+evidence = []
+
+[[area]]
+id = "display"
+status = "planned"
+components = []
+paths = ["dts/**"]
+inputs = ["Two LG LGSW43416 1350x1800 DSI command-mode panels (DSI0 left, DSI1 right), DSC 1.1 (V-src: ACPI panelcfg). UEFI exposes one GOP at 1350x1800x32 (left panel).", "UNKNOWN-PH: GOP framebuffer base, stride, pixel format, MDP refresh after ExitBootServices."]
+configuration = ["No display component selected; CONFIG_XNU_NATIVE_MOBILE_DISPLAY=n. No simple-framebuffer node in dts/epsilon.dts."]
+procedure = ["Read boot_args->Video and the GOP mode from the tiny read-only firmware payload; then define the framebuffer handoff."]
+findings = ["RightDisplayDxe was added and then disabled upstream on 2026-11-02, so the right panel has no working UEFI path (B7)."]
+completion = ["A known frame appears on the left panel with correct geometry and colours after XNU entry."]
+limits = ["Single (left) panel only; dual display is Phase 6."]
+next_action = ["Measure the GOP base and stride with the read-only payload."]
+evidence = []
+
+[[area]]
+id = "input"
+status = "planned"
+components = []
+paths = ["package/**"]
+inputs = ["N-Trig HID-over-SPI digitizer MSHW0162 on QUP0 SE7 0x89C000, IRQ GPIO 3 (V-src: ACPI); buttons PON PWRKEY, PON RESIN, PM8150 GPIO6 vol-up (V-src: Linux); hall sensor TLMM GPIO 121 (V-src)."]
+configuration = ["No input component selected."]
+procedure = ["Inventory the SPI/HID protocol from the ACPI and Linux sources; design a read-only probe only after display works."]
+findings = ["Native N-Trig reporting is single-touch only; multitouch needs a heat-map processor with no XNU equivalent (B8)."]
+completion = ["Touches map to the display with stable IDs, and buttons produce the expected HID reports."]
+limits = ["No input implementation."]
+next_action = ["Defer until a native frame exists."]
+evidence = []
+
+[[area]]
+id = "gpu"
+status = "planned"
+components = []
+paths = ["configs/**"]
+inputs = ["Adreno 640 (V-src: Linux sm8150.dtsi, ACPI GPU0 QCOM053A). UNKNOWN-PH: firmware, GMU, SMMU streams."]
+configuration = ["CONFIG_XNU_NATIVE_ADRENO=n. Adreno740/AdrenoMetal (A740/SM8550) are not selected."]
+procedure = ["Inventory the GPU/GMU revision and firmware hashes before any submission experiment."]
+findings = ["No transferable A740 qualification exists for A640 (B6)."]
+completion = ["Validated GPU power, firmware start, and bounded command submission with fences."]
+limits = ["No GPU work planned near-term."]
+next_action = ["None until boot-chain bring-up succeeds."]
+evidence = []
+
+[[area]]
+id = "network"
+status = "planned"
+components = []
+paths = ["porting.toml"]
+inputs = ["UNKNOWN-PH: Wi-Fi/BT controller identity, bus, firmware, IRQ and DMA on epsilon."]
+configuration = ["No network component selected."]
+procedure = ["Identify the controller and firmware from pinned ACPI/Linux sources."]
+findings = ["Wi-Fi working under Windows (self-reported) is not evidence of an XNU network path."]
+completion = ["Native association and sustained packet transfer with measured DMA bounds."]
+limits = ["No network implementation."]
+next_action = ["Identify the bus and controller from the pinned sources."]
+evidence = []
+
+[[area]]
+id = "cellular"
+status = "planned"
+components = []
+paths = ["porting.toml"]
+inputs = ["UNKNOWN-PH: modem firmware, EFS/NV, QRTR/QMI and IPA paths on epsilon."]
+configuration = ["No baseband component selected."]
+procedure = ["Out of scope until userland; inventory only."]
+findings = ["Cellular works under Windows (self-reported); this is not evidence for XNU."]
+completion = ["Native modem start, SIM identity and a data session."]
+limits = ["No cellular work planned near-term."]
+next_action = ["None until userland exists."]
+evidence = []
+
+[[area]]
+id = "audio"
+status = "planned"
+components = []
+paths = ["porting.toml"]
+inputs = ["UNKNOWN-PH: ADSP/codec topology. Audio does not work under DuoWOA either (self-reported)."]
+configuration = ["No audio component selected."]
+procedure = ["Inventory the DSP/codec topology from pinned sources."]
+findings = ["No working reference stack on any OS other than Android."]
+completion = ["Native playback and capture with correct routing."]
+limits = ["No audio implementation."]
+next_action = ["None near-term."]
+evidence = []
+
+[[area]]
+id = "power"
+status = "planned"
+components = []
+paths = ["patches/xnu/series"]
+inputs = ["PMICs PM8150, PM8150B, PM8150L and PM8009; two bq27742 fuel gauges; APSS watchdog 0x17C10000 is disabled by DuoWOA PrePi (V-src: Linux, MU PlatformUtils.c)."]
+configuration = ["No power component selected. The raphael pmgr-compat patch is listed in the commented patch plan only."]
+procedure = ["Confirm the watchdog state at handoff with the read-only payload."]
+findings = ["The watchdog is disabled and there is no accessible UART, so a hang needs a manual forced reset (B9)."]
+completion = ["A bounded diagnostic return or reset path is reproducible; battery and regulator readings match observations."]
+limits = ["No power implementation."]
+next_action = ["Record the watchdog and PSCI behaviour in the read-only payload output."]
+evidence = []
+
+[[area]]
+id = "packaging"
+status = "planned"
+components = ["XnuPrelink"]
+paths = ["patches/**", "package/**", "scripts/package.sh"]
+inputs = ["Diagnostic profile: XNU d8b80295118ef25ac3a784134bcf95cd8e88109f (10063.141.1), iPadOS 17.7.11 21H461 IPSW pins from the OS profile.", "Primary target (not configured): xnu-12377.121.6, iPadOS 27.0.1 24A446, arm64e. UNVERIFIED-PENDING-HARDWARE."]
+configuration = ["Patch order: arch:patches/xnu/series, soc:patches/xnu/series (empty), device:patches/xnu/os-bootstrap.series (2 XnuPrelink patches), device:patches/xnu/series (empty plan)."]
+procedure = ["unixnu status --json shows the resolved patch order; no kernel build or prelink has been run."]
+findings = ["The device series is empty by design until the epsilon-renamed raphael patches are re-derived."]
+completion = ["The kernel and prelink build, the payload contains all declared inputs, and the boot image matches the Duo ABL format."]
+limits = ["No build performed. IPSW images are kept outside the repository."]
+next_action = ["After T4, run a host-only kernel compile of the diagnostic profile with example temporarily lifted in a scratch copy only."]
+evidence = []
+
+[[area]]
+id = "diagnostics"
+status = "planned"
+components = []
+paths = ["scripts/**", "unixnu.lock"]
+inputs = ["Planned host scripts make-epsilon-adt.py and capture-usb-log.py (zeta methodology, SM8150 constants re-derived). DWC3 0xA600000 peripheral mode (V-src, Linux)."]
+configuration = ["scripts/README.md lists the planned scripts; none exist yet."]
+procedure = ["Port the ADT generator and USB log capture from zeta methodology on the host; no device writes."]
+findings = ["No physical UART pads are documented on retail units, so USB or framebuffer logging is required (B9)."]
+completion = ["Each claimed milestone has a reproducible command, a matching source/image revision and an accessible result."]
+limits = ["No diagnostic tooling yet; no device logs."]
+next_action = ["Phase 1 T4: port make-epsilon-adt.py and decode the resulting ADT on the host."]
+evidence = []

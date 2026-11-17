@@ -1,0 +1,46 @@
+--- a/EpsilonUniXNUPkg/Application/EpsilonDiag/EpsilonDiag.c
++++ b/EpsilonUniXNUPkg/Application/EpsilonDiag/EpsilonDiag.c
+@@ -39,10 +39,13 @@
+ #include <Protocol/GraphicsOutput.h>
+ 
+ #include "DiagCore.h"
++#include "EpsilonFdtProbeResult.h"
+ 
+ #define HOLD_SECONDS  60
+ 
+ STATIC EFI_GUID  mEpsilonEntryProbeGuid = { 0xADA9D741, 0x475A, 0x4120, { 0xA7, 0x69, 0xD8, 0x54, 0x56, 0xE6, 0x3A, 0xAA } };
++
++STATIC EFI_GUID  mEpsilonFdtProbeGuid = { 0x7B27F2DD, 0xED43, 0x4AD4, { 0x9D, 0xED, 0x3A, 0x0C, 0x4D, 0x9C, 0xC8, 0xA1 } };
+ 
+ #define COLOR_BLACK   0x00000000
+ #define COLOR_WHITE   0x00FFFFFF
+@@ -413,6 +416,8 @@
+   UINT64  Isar1;
+   UINT64  Isar2;
+   EFI_HOB_GUID_TYPE  *EntryProbe;
++  EFI_HOB_GUID_TYPE  *FdtProbe;
++  CONST EPSILON_FDT_PROBE_RESULT  *FdtResult;
+ 
+   GopCount = DisplayInit ();
+ 
+@@ -425,6 +430,20 @@
+   } else {
+     Emit (NULL, "UNIXNU: ABL.X0.HOB=MISSING");
+   }
++
++  FdtProbe = GetFirstGuidHob (&mEpsilonFdtProbeGuid);
++  if ((FdtProbe != NULL) && (GET_GUID_HOB_DATA_SIZE (FdtProbe) == sizeof (*FdtResult))) {
++    FdtResult = GET_GUID_HOB_DATA (FdtProbe);
++    if (FdtResult->Status == EPSILON_FDT_BOUNDS_OK) {
++      EmitHex ("FDT.BYTES", FdtResult->TotalSize, 8);
++    } else {
++      EmitHex ("FDT.STATUS", FdtResult->Status, 2);
++    }
++    EmitHex ("INITRD.START", FdtResult->InitrdStart, 16);
++    EmitHex ("INITRD.END", FdtResult->InitrdEnd, 16);
++  } else {
++    Emit (NULL, "UNIXNU: FDT.HOB=MISSING");
++  }
+   mColor = COLOR_WHITE;
+ 
+   //

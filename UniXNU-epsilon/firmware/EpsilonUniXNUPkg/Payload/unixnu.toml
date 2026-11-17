@@ -1,0 +1,46 @@
+# FV-embedded UniXNU configuration for Surface Duo 1 (epsilon) bring-up.
+#
+# SUPERVISED DIAGNOSTIC CONFIG. The default entry starts the T5 read-only
+# diagnostic (EpsilonUniXNUPkg/Application/EpsilonDiag), an FV application
+# named by FILE_GUID. It prints "UNIXNU:" lines on the panel and returns here.
+#
+# This file only takes effect when UniXNU runs, which needs a build with
+# UNIXNU_BOOT_OPTION=1. In the default build (UNIXNU_BOOT_OPTION=0) nothing
+# starts UniXNU and this file is never read.
+#
+# Rules enforced by scripts/lint-epsilon-config.py: no slices; the default is
+# an action or exactly this diagnostic; every path is fv:<GUID>.
+#
+# Not booted on hardware.
+version = 1
+
+[boot]
+timeout = 5
+default = "diag"
+
+[ui]
+title = "UniXNU - Surface Duo (epsilon) FV payload"
+
+[[entry]]
+id = "diag"
+title = "Read-only diagnostic (T5)"
+type = "efi"
+path = "fv:E59FE912-1804-4BB0-B27E-DAE17C9A703A"
+
+[[entry]]
+id = "exit"
+title = "Return to firmware"
+type = "action"
+action = "exit"
+
+[[entry]]
+id = "reset"
+title = "Restart"
+type = "action"
+action = "reset"
+
+[[entry]]
+id = "shutdown"
+title = "Power off"
+type = "action"
+action = "shutdown"

@@ -1,0 +1,7 @@
+# Compile-only OS selection for xnu-10063.141.1 (diagnostic profile ipados-17.7.11-21H461).
+# Copied from guowenye/UniXNU-raphael@1c435f2291 patches/xnu/os-bootstrap.series: the two
+# XnuPrelink component patches of the OS series, without zzz-boot-progress.patch, which
+# assumes an unrelated board PMGR hunk (CONFIG_XNU_BOOT_PROGRESS=n in epsilon_defconfig).
+# The iOS 27 primary target (xnu-12377.121.6, arm64e) needs its own series; none exists yet.
+component:XnuPrelink/patches/xnu-10063.141.1-security-init.patch
+component:XnuPrelink/patches/xnu-10063.141.1-sparse-index.patch

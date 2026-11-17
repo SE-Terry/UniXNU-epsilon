@@ -1,0 +1,16 @@
+## @file
+#  Surface Duo 1 (epsilon) glue for embedding UniXNU in the DuoWOA firmware.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  DEC_SPECIFICATION = 0x00010019
+  PACKAGE_NAME      = EpsilonUniXNUPkg
+  PACKAGE_GUID      = CBFA4421-5556-42EF-B1E1-511EA7545C2C
+  PACKAGE_VERSION   = 0.1
+
+[Guids]
+  ## FV file (FREEFORM, one RAW section) holding the payload FAT image.
+  #  Must match the FILE FREEFORM GUID in EpsilonUniXNU.fdf.inc.
+  gEpsilonPayloadFileGuid = { 0xF98C36DD, 0xFAF0, 0x4DC4, { 0xBF, 0xDB, 0xA9, 0x8F, 0x13, 0x6D, 0xB8, 0x04 } }

@@ -1,0 +1,5 @@
+# Required firmware inputs: relative path | source | SHA-256 | consumer
+# None are declared yet. Firmware base: WOA-Project/mu_andromeda_platforms@613e2eac87 with
+# stock DXE blobs from WOA-Project/SurfaceDuoBinaries@1f458b7914 (submodule). The exact
+# input list and hashes come from Phase 1 T1 (reproduce the stock epsilon FD) -- UNKNOWN-PH.
+# Extracted firmware, Apple images and device dumps never live in this repository.

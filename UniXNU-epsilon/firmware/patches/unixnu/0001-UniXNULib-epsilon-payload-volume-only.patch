@@ -1,0 +1,116 @@
+iPhoneDuo epsilon board patch for UniXNU/UniXNU@21d683dff6 (UniXNULib).
+Applied by firmware/scripts/build-fd-in-container.sh to the build-time copy of
+UniXNUPkg; the UniXNU checkout itself is never modified.
+
+Review finding M1 (data safety):
+- Config discovery only reads \EFI\UniXNU\unixnu.toml from the volume whose
+  device path starts with the EpsilonPayloadDxe vendor node
+  (5AEDCA82-BD6F-4986-BA69-3B08EEC1F803). Any other FAT volume, including the
+  Windows ESP, is skipped. With no payload volume the built-in configuration
+  is used (actions + removable-media loaders, upstream behaviour).
+- Every [[block_slice]] is refused with a config error (a slice is a Block I/O
+  view onto a named GPT partition of the internal UFS disk).
+
+Base file SHA-256 (upstream Config.c):
+c070b2eb1c4922df345a2f830c5f2c420bafd11dde759fee2d2ce4f3be3923c5
+
+Host build only. Not booted on hardware.
+
+--- a/package/UniXNUPkg/Library/UniXNULib/Config.c
++++ b/package/UniXNUPkg/Library/UniXNULib/Config.c
+@@ -1429,6 +1429,18 @@
+   }
+ 
+   List = TomlGet (Root, "block_slice");
++
++  //
++  // iPhoneDuo epsilon board patch: a slice is a Block I/O view onto a named
++  // GPT partition of the internal UFS disk (Slice.c), and a writable one
++  // forwards WriteBlocks to it. The epsilon GPT layout (Android + DuoWOA) is
++  // not verified, so every slice is refused.
++  //
++  if ((List != NULL) && (List->Child != NULL)) {
++    ConfigError (Config, "block_slice is disabled on epsilon (line %u)", (UINT32)List->Child->Line);
++    List = NULL;
++  }
++
+   for (Item = (List != NULL) ? List->Child : NULL; Item != NULL; Item = Item->Next) {
+     UNIXNU_BLOCK_SLICE  *Slice;
+     CONST CHAR8     *Partition;
+@@ -1492,9 +1504,49 @@
+     Config->DefaultIndex = (UINTN)Default->Integer;
+   }
+ }
++
++//
++// iPhoneDuo epsilon board patch. Vendor GUID of the HW_VENDOR_DP node that
++// EpsilonPayloadDxe installs on its Block I/O handle (mDevicePath in
++// firmware/EpsilonUniXNUPkg/Driver/EpsilonPayloadDxe/EpsilonPayloadDxe.c;
++// firmware/scripts/lint-epsilon-config.py checks that the two copies match).
++//
++STATIC CONST EFI_GUID  mEpsilonPayloadVendorGuid = {
++  0x5AEDCA82, 0xBD6F, 0x4986, { 0xBA, 0x69, 0x3B, 0x08, 0xEE, 0xC1, 0xF8, 0x03 }
++};
+ 
++//
++// TRUE if Volume's device path starts with the EpsilonPayloadDxe vendor
++// node: the payload block device itself, or a partition child that a
++// partition driver may create on it (the FAT image has a 0x55AA signature).
++//
+ STATIC
+ BOOLEAN
++IsEpsilonPayloadVolume (
++  IN EFI_HANDLE  Volume
++  )
++{
++  EFI_DEVICE_PATH_PROTOCOL  *Node;
++
++  if ((Volume == NULL) ||
++      EFI_ERROR (gBS->HandleProtocol (Volume, &gEfiDevicePathProtocolGuid, (VOID **)&Node)) ||
++      (Node == NULL))
++  {
++    return FALSE;
++  }
++
++  if ((DevicePathType (Node) != HARDWARE_DEVICE_PATH) ||
++      (DevicePathSubType (Node) != HW_VENDOR_DP) ||
++      (DevicePathNodeLength (Node) < sizeof (VENDOR_DEVICE_PATH)))
++  {
++    return FALSE;
++  }
++
++  return CompareGuid (&((VENDOR_DEVICE_PATH *)Node)->Guid, &mEpsilonPayloadVendorGuid);
++}
++
++STATIC
++BOOLEAN
+ TryVolume (
+   IN UNIXNU_CONFIG   *Config,
+   IN EFI_HANDLE  Volume
+@@ -1547,7 +1599,14 @@
+   //
+   // The volume UniXNU was started from wins; then every other volume.
+   //
+-  if (!EFI_ERROR (gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&Self))) {
++  // iPhoneDuo epsilon board patch: both steps only accept the
++  // EpsilonPayloadDxe volume. A unixnu.toml on any other FAT volume (the
++  // Windows ESP, SD, USB) is never read, so it cannot inject ACPI, drivers,
++  // kits or slices into a boot that then falls through to DuoWOA.
++  //
++  if (!EFI_ERROR (gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&Self)) &&
++      IsEpsilonPayloadVolume (Self->DeviceHandle))
++  {
+     Loaded = TryVolume (Config, Self->DeviceHandle);
+   }
+ 
+@@ -1555,6 +1614,10 @@
+     Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid, NULL, &Count, &Handles);
+     if (!EFI_ERROR (Status)) {
+       for (Index = 0; Index < Count && !Loaded && Config->Error[0] == '\0'; Index++) {
++        if (!IsEpsilonPayloadVolume (Handles[Index])) {
++          continue;
++        }
++
+         Loaded = TryVolume (Config, Handles[Index]);
+       }
+ 

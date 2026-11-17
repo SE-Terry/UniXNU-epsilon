@@ -1,0 +1,50 @@
+--- a/BootConfig/BootConfigShim.S
++++ b/BootConfig/BootConfigShim.S
+@@ -2,6 +2,8 @@
+ .align 4
+ 
+ _BootConfigShimEntry:
++	// Preserve the Android bootloader entry argument before repacking x0/x1.
++	mov	x2, x0
+ 	movz	x0, #((UEFI_FD_BASE + UEFI_FD_SIZE) & 0xffff)
+ 	movk	x0, #(((UEFI_FD_BASE + UEFI_FD_SIZE) >> 16) & 0xffff), lsl #16
+ 	movz	x1, #(BOOT_CONFIG_SIZE & 0xffff)
+--- a/Platforms/AndromedaPkg/Library/ArmPlatformLib/AArch64/ArmPlatformHelper.S
++++ b/Platforms/AndromedaPkg/Library/ArmPlatformLib/AArch64/ArmPlatformHelper.S
+@@ -9,6 +9,10 @@
+ #include <Library/ArmLib.h>
+ 
+ ASM_FUNC(ArmPlatformPeiBootAction)
++  // The opt-in config shim passes the original x0 in x2.
++  adrp  x3, gEpsilonBootloaderX0
++  add   x3, x3, :lo12:gEpsilonBootloaderX0
++  str   x2, [x3]
+   // Publish the boot configuration before early platform initialization.
+   adrp  x2, gAndromedaBootConfigBuffer
+   add   x2, x2, :lo12:gAndromedaBootConfigBuffer
+--- a/Platforms/AndromedaPkg/PrePi/PrePi.c
++++ b/Platforms/AndromedaPkg/PrePi/PrePi.c
+@@ -32,6 +32,10 @@
+ 
+ #define IS_XIP()  (((UINT64)FixedPcdGet64 (PcdFdBaseAddress) > mSystemMemoryEnd) ||\
+                   ((FixedPcdGet64 (PcdFdBaseAddress) + FixedPcdGet32 (PcdFdSize)) <= FixedPcdGet64 (PcdSystemMemoryBase)))
++
++// Probe-only record. This is an opaque value, not a validated FDT pointer.
++UINT64  gEpsilonBootloaderX0 = 0;
++STATIC EFI_GUID  mEpsilonEntryProbeGuid = { 0xADA9D741, 0x475A, 0x4120, { 0xA7, 0x69, 0xD8, 0x54, 0x56, 0xE6, 0x3A, 0xAA } };
+ 
+ UINT64  mSystemMemoryEnd = FixedPcdGet64 (PcdSystemMemoryBase) +
+                            FixedPcdGet64 (PcdSystemMemorySize) - 1;
+@@ -162,6 +166,12 @@
+               );
+   PrePeiSetHobList (HobList);
+ 
++  BuildGuidDataHob (
++    &mEpsilonEntryProbeGuid,
++    &gEpsilonBootloaderX0,
++    sizeof (gEpsilonBootloaderX0)
++    );
++
+   if ((BootConfigAddress != 0) &&
+       (BootConfigSize > 0) &&
+       (BootConfigSize <= ANDROMEDA_BOOT_CONFIG_MAX_SIZE)) {

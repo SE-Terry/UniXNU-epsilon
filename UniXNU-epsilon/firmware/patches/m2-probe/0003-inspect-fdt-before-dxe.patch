@@ -1,0 +1,68 @@
+--- a/Platforms/AndromedaPkg/PrePi/PrePi.c
++++ b/Platforms/AndromedaPkg/PrePi/PrePi.c
+@@ -29,6 +29,9 @@
+ #include <Guid/AndromedaBootConfig.h>
+ #include <Library/AndromedaArmPlatformLib.h>
+ #include <Library/AndromedaBootConfigLib.h>
++#include <Library/AndromedaMemoryMapLib.h>
++#include <Library/FdtLib.h>
++#include "EpsilonFdtProbe.h"
+ 
+ #define IS_XIP()  (((UINT64)FixedPcdGet64 (PcdFdBaseAddress) > mSystemMemoryEnd) ||\
+                   ((FixedPcdGet64 (PcdFdBaseAddress) + FixedPcdGet32 (PcdFdSize)) <= FixedPcdGet64 (PcdSystemMemoryBase)))
+@@ -36,6 +39,34 @@
+ // Probe-only record. This is an opaque value, not a validated FDT pointer.
+ UINT64  gEpsilonBootloaderX0 = 0;
+ STATIC EFI_GUID  mEpsilonEntryProbeGuid = { 0xADA9D741, 0x475A, 0x4120, { 0xA7, 0x69, 0xD8, 0x54, 0x56, 0xE6, 0x3A, 0xAA } };
++
++STATIC EFI_GUID  mEpsilonFdtProbeGuid = { 0x7B27F2DD, 0xED43, 0x4AD4, { 0x9D, 0xED, 0x3A, 0x0C, 0x4D, 0x9C, 0xC8, 0xA1 } };
++
++STATIC
++VOID
++PublishEpsilonFdtProbe (
++  VOID
++  )
++{
++  // HLOS 1, from the pinned SM8150 AndromedaMemoryMapLib.
++  CONST UINT64                    Start = 0x83722000;
++  CONST UINT64                    End = 0x85700000;
++  EPSILON_FDT_PROBE_RESULT        Result = { EPSILON_FDT_MEMORY_MAP, 0, 0, 0 };
++  ARM_MEMORY_REGION_DESCRIPTOR_EX *Region;
++
++  if (ArmMmuEnabled ()) {
++    for (Region = GetPlatformMemoryMap (); Region->Length != 0; ++Region) {
++      if ((Region->Address == Start) && (Region->Length == End - Start) &&
++          (Region->HobOption == AddMem) && (Region->ResourceType == SYS_MEM) &&
++          (Region->MemoryType == BsData) && (Region->ArmAttributes == WRITE_BACK_XN)) {
++        Result = EpsilonInspectFdt (gEpsilonBootloaderX0, Start, End);
++        break;
++      }
++    }
++  }
++
++  BuildGuidDataHob (&mEpsilonFdtProbeGuid, &Result, sizeof (Result));
++}
+ 
+ UINT64  mSystemMemoryEnd = FixedPcdGet64 (PcdSystemMemoryBase) +
+                            FixedPcdGet64 (PcdSystemMemorySize) - 1;
+@@ -190,6 +221,9 @@
+   // Initialize MMU and Memory HOBs (Resource Descriptor HOBs)
+   Status = MemoryPeim (UefiMemoryBase, UefiMemorySize);
+   ASSERT_EFI_ERROR (Status);
++  if (!EFI_ERROR (Status)) {
++    PublishEpsilonFdtProbe ();
++  }
+ 
+   BuildStackHob (StacksBase, StacksSize);
+ 
+--- a/Platforms/AndromedaPkg/PrePi/PeiUniCore.inf
++++ b/Platforms/AndromedaPkg/PrePi/PeiUniCore.inf
+@@ -33,6 +33,8 @@
+ 
+ [LibraryClasses]
+   BaseLib
++  AndromedaMemoryMapLib
++  FdtLib
+   CacheMaintenanceLib
+   DebugLib
+   DebugAgentLib

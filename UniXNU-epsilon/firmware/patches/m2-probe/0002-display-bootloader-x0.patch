@@ -1,0 +1,50 @@
+--- a/EpsilonUniXNUPkg/Application/EpsilonDiag/EpsilonDiag.c
++++ b/EpsilonUniXNUPkg/Application/EpsilonDiag/EpsilonDiag.c
+@@ -32,6 +32,8 @@
+ 
+ #include <Uefi.h>
++#include <PiDxe.h>
+ #include <Library/DebugLib.h>
++#include <Library/HobLib.h>
+ #include <Library/MemoryAllocationLib.h>
+ #include <Library/UefiBootServicesTableLib.h>
+ #include <Protocol/GraphicsOutput.h>
+@@ -39,6 +41,8 @@
+ #include "DiagCore.h"
+ 
+ #define HOLD_SECONDS  60
++
++STATIC EFI_GUID  mEpsilonEntryProbeGuid = { 0xADA9D741, 0x475A, 0x4120, { 0xA7, 0x69, 0xD8, 0x54, 0x56, 0xE6, 0x3A, 0xAA } };
+ 
+ #define COLOR_BLACK   0x00000000
+ #define COLOR_WHITE   0x00FFFFFF
+@@ -408,11 +412,19 @@
+   UINTN   GopCount;
+   UINT64  Isar1;
+   UINT64  Isar2;
++  EFI_HOB_GUID_TYPE  *EntryProbe;
+ 
+   GopCount = DisplayInit ();
+ 
+   mColor = COLOR_CYAN;
+   Emit (NULL, "UNIXNU: DIAG.VERSION=1");
++  EntryProbe = GetFirstGuidHob (&mEpsilonEntryProbeGuid);
++  if ((EntryProbe != NULL) && (GET_GUID_HOB_DATA_SIZE (EntryProbe) == sizeof (UINT64))) {
++    // Display the entry argument without dereferencing its address.
++    EmitHex ("ABL.X0", *(CONST UINT64 *)GET_GUID_HOB_DATA (EntryProbe), 16);
++  } else {
++    Emit (NULL, "UNIXNU: ABL.X0.HOB=MISSING");
++  }
+   mColor = COLOR_WHITE;
+ 
+   //
+--- a/EpsilonUniXNUPkg/Application/EpsilonDiag/EpsilonDiag.inf
++++ b/EpsilonUniXNUPkg/Application/EpsilonDiag/EpsilonDiag.inf
+@@ -33,6 +33,7 @@
+ 
+ [LibraryClasses]
+   DebugLib
++  HobLib
+   MemoryAllocationLib
+   UefiApplicationEntryPoint
+   UefiBootServicesTableLib

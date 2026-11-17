@@ -1,0 +1,114 @@
+# UniXNU format-2 board configuration for Microsoft Surface Duo 1 (epsilon), SM8150.
+# Project iPhoneDuo. Scaffold only: host-side resolution and diagnostics. No device
+# has been contacted; no value here has been measured on epsilon hardware.
+#
+# Schema source: UniXNU/UniXNU@21d683dff61c66f219f03ab9d8b9249026514788
+#   docs/porting/device-repository.md, examples/device/board.toml
+# Layout template: guowenye/UniXNU-raphael@1c435f2291edab0eda01bef865bdf4e7d69a9aa2 board.toml
+#
+# Value labels used in comments:
+#   V-src      read directly in a pinned source (cited inline)
+#   UNKNOWN-PH PENDING-HARDWARE: must be measured by the read-only device audit (Phase 1 T7)
+schema_version = 2
+
+[board]
+name = "epsilon"
+soc = "SM8150"
+soc_source = "sm8150"
+# Resolvable diagnostic profile (arm64, xnu-10063.141.1). This is NOT the project's primary
+# target; see [iphoneduo] below. It is selected because it is the only upstream arm64
+# profile and needs no pointer authentication.
+os_profile = "ipados-17.7.11-21H461"
+kit = "epsilon"
+description = "Microsoft Surface Duo 1 (SM8150) scaffold; host-resolution only, no hardware verification"
+# Safety latch: `unixnu build`, `bootimg` and `release` refuse a board with example = true.
+# It stays set until every UNKNOWN-PH input below is measured and the firmware recipe exists.
+# (UniXNU completion requires example absent/false; that is a later milestone, not this scaffold.)
+example = true
+
+# ---------------------------------------------------------------------------------------
+# PRIMARY TARGET DECLARATION (informational; not read by the unixnu resolver)
+# ---------------------------------------------------------------------------------------
+# iOS 27 is the project's primary target (docs/decisions/0005 in the parent project).
+# It is NOT the resolvable configuration of this scaffold, and it is NOT claimed to work.
+#
+# Upstream requirement (UniXNU@21d683d docs/porting/arm64e.md): an arm64e profile needs
+# FEAT_PAuth (ID_AA64ISAR1_EL1 APA|API and GPA|GPI nonzero) on every enabled CPU, writable
+# key registers at EL1 and non-trapping PACIA/AUTIA. SM8150 Kryo 485 (Cortex-A76/A55) is
+# ARMv8.2-A, and the Duo's own firmware is built -march=armv8.2-a
+# (WOA-Project/mu_andromeda_platforms@613e2eac87 Andromeda.dsc.inc:640) -> strong inference
+# of NO PAC. Not measured on epsilon.
+[iphoneduo]
+primary_os_profile = "ipados-27.0.1-24A446"
+primary_arch = "arm64e"
+primary_status = "UNVERIFIED-PENDING-HARDWARE"
+primary_blocker = "FEAT_PAuth absent on SM8150 Kryo 485 (ARMv8.2-A) by [A]-grade inference; on-device ID_AA64ISAR1_EL1/ISAR2 read (E1) not performed"
+diagnostic_os_profile = "ipados-17.7.11-21H461"
+diagnostic_arch = "arm64"
+device_contacted = false
+
+[components]
+# Arrays replace the inherited arm64 list (ArmDTPlatform, ArmCpu, SoftwareAES, XnuPrelink).
+# ArmCpu is deliberately NOT selected: UniXNU drivers/ArmCpu@acba4ee ArmCpu.cpp:142-143
+# hard-codes the virtual timer as PPI INTID 27 (SM8350). epsilon's GTDT/Linux timer node give
+# virtual INTID 19 / NS-EL1 INTID 18 (blocker B1). raphael excludes ArmCpu for the same reason.
+# SoftwareAES is omitted to match the compile-only raphael baseline.
+include = ["XnuPrelink", "DarwinBoot", "ArmDTPlatform"]
+
+[kernel]
+defconfig = "epsilon_defconfig"
+config_fragments = ["arch:configs/common.config", "soc:configs/sm8150.config"]
+# Same order as raphael: arch, SoC, the compile-only OS bootstrap subset (omits the OS
+# series' zzz-boot-progress.patch, which assumes an unrelated board PMGR), then device.
+patch_series = ["arch:patches/xnu/series", "soc:patches/xnu/series", "device:patches/xnu/os-bootstrap.series", "device:patches/xnu/series"]
+# raphael additionally runs build-raphael-cpu.py and build-raphael-pthread.py (device
+# scripts). They are not referenced here until epsilon equivalents exist (scripts/README.md).
+archives = ["build-corecrypto-14.py", "build-corecrypto-14.py --namespace"]
+
+[device_tree]
+# Inspection-only source. No loader-owned RAM is granted by this DTS.
+source = "device:dts/epsilon.dts"
+include_dirs = ["soc:dts"]
+
+# UniXNU framework pin (UniXNU itself is the tool, not a feeds.toml source kind; raphael
+# records it with these same keys). scripts/package.sh resolves `unixnu` relative to this
+# repository; check out UniXNU@unixnu_revision there (ignored /sources/).
+[package]
+unixnu = "sources/UniXNU"
+unixnu_repository = "UniXNU/UniXNU"
+unixnu_revision = "21d683dff61c66f219f03ab9d8b9249026514788"
+
+[package.defconfig]
+"ipados-17.7.11-21H461" = "epsilon_defconfig"
+
+# ---------------------------------------------------------------------------------------
+# Sections intentionally NOT declared yet (all UNKNOWN-PH). They are left commented so no
+# placeholder number can be consumed by a build step. Fill from measured evidence only.
+# ---------------------------------------------------------------------------------------
+#
+# [firmware]                      # UNKNOWN-PH: DuoWOA is not Mu-Silicium (blocker B-FW1).
+# config = "UNKNOWN-PH"           # Firmware base will be WOA-Project/mu_andromeda_platforms
+# dsc = "UNKNOWN-PH"              # @613e2eac87 Platforms/SurfaceDuo1Pkg with an FV-embedded
+# fd = "UNKNOWN-PH"               # payload (Phase 1 T3/T5). Stock FD expected 0x2EF000 bytes
+# packages = []                   # (Phase 1 T1, not yet reproduced). FD headroom: UNKNOWN-PH.
+#
+# [bootimg.image]                 # DuoWOA uses boot header v2, pagesize 4096, raw kernel,
+# header_version = UNKNOWN-PH     # separate dtb, second_offset 0xf00000 (V-src, MU guides);
+# pagesize = UNKNOWN-PH           # stock-ABL acceptance of the UniXNU format: UNKNOWN-PH.
+#
+# [userdata]                      # MUST NOT be used with the standard installer: it shrinks
+# first_lba = UNKNOWN-PH          # userdata and requires it to be the last partition, which
+# last_lba = UNKNOWN-PH           # fails with Windows on sda8 (blocker B10). Storage model is
+# lba_bytes = UNKNOWN-PH          # raphael's immutable files in /data + RAM Data (ADR 0004).
+#
+# [payload]
+# dram_size = "0x180000000"       # V-src: PcdSystemMemorySize, MU SurfaceDuo1.dsc (6 GiB).
+# volume / size_mib / loader / kernel_args: UNKNOWN-PH (payload discovery path B-FW1).
+#
+# [payload.adt]
+# chip_id = UNKNOWN-PH
+# cpu_regs = UNKNOWN-PH           # boot CPU ownership policy (raphael: single boot CPU).
+# psci_method = "smc"             # V-src: Linux sm8150.dtsi psci{}; QHEE MEM_PROTECT bug (B2).
+# unique_chip_id = "required"     # private seed; never committed.
+#
+# [ipsw]                          # Supplied by the selected OS profile; no board override.
